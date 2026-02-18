@@ -25,19 +25,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
           aws-region: us-east-1
-      - name: Clean up old change sets
-        run: |
-          # Listar y eliminar change sets del stack
-          CHANGESETS=$(aws cloudformation list-change-sets \
-            --stack-name uda-artifact \
-            --query 'Summaries[*].ChangeSetName' \
-            --output text 2>/dev/null || echo "")
-          
-          for cs in $CHANGESETS; do
-            aws cloudformation delete-change-set \
-              --stack-name uda-artifact \
-              --change-set-name $cs || true
-          done
+      
         continue-on-error: true
       - name: Show template content
         run: |
@@ -50,11 +38,20 @@ jobs:
           name: uda-artifact
           template: uda_artifact.yml
           fail-on-empty-changeset: "1"
+      
+      - name: Get bucket name from CloudFormation
+        id: get-bucket
+        run: |
+          BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name uda-artifact \
+            --query 'Stacks[0].Outputs[?OutputKey==`ArtifactBucketName`].OutputValue' \
+            --output text)
+          echo "bucket_name=$BUCKET" >> $GITHUB_OUTPUT
 
       - name: Upload files to S3 bucket
         run: |
-          aws s3 cp website/${{ github.event.inputs.index_document }} s3://${{ env.BUCKET_NAME }} 
-          aws s3 cp website/${{ github.event.inputs.error_document }} s3://${{ env.BUCKET_NAME }} 
+          aws s3 cp website/${{ github.event.inputs.index_document }} s3://${{ steps.get-bucket.outputs.bucket_name }} 
+          aws s3 cp website/${{ github.event.inputs.error_document }} s3://${{ steps.get-bucket.outputs.bucket_name }} 
 
       - name: Show S3 bucket website URL
         run: |
