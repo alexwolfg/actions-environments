@@ -30,7 +30,7 @@ jobs:
         with:
           name: uda-artifact
           template: uda_artifact.yml
-          no-fail-on-empty-changeset: "false"
+          fail-on-empty-changeset: "false"
           
       - name: Upload files to S3 bucket
         run: |
