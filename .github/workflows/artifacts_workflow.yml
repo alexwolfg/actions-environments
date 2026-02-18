@@ -10,6 +10,8 @@ on:
         description: 'Name of the error document'
         required: true
         default: 'error.html'
+  push:
+    branches: [ main ]
 env:
   BUCKET_NAME: website-artifacts-2
 jobs:
