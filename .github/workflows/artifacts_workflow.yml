@@ -43,8 +43,6 @@ jobs:
         run: |
           echo "=== Template actual ==="
           cat uda_artifact.yml
-          echo "=== Buscando 'website-artifacts' ==="
-          grep -i "bucket" uda_artifact.yml
 
       - name: Create CloudFormation Stack
         uses: aws-actions/aws-cloudformation-github-deploy@v2.0.0
@@ -52,20 +50,11 @@ jobs:
           name: uda-artifact
           template: uda_artifact.yml
           fail-on-empty-changeset: "1"
-      
-      - name: Get bucket name from CloudFormation
-        id: get-bucket
-        run: |
-          BUCKET=$(aws cloudformation describe-stacks \
-            --stack-name uda-artifact \
-            --query 'Stacks[0].Outputs[?OutputKey==`ArtifactBucketName`].OutputValue' \
-            --output text)
-          echo "bucket_name=$BUCKET" >> $GITHUB_OUTPUT
 
       - name: Upload files to S3 bucket
         run: |
-          aws s3 cp website/${{ github.event.inputs.index_document }} s3://${{ steps.get-bucket.outputs.bucket_name }} 
-          aws s3 cp website/${{ github.event.inputs.error_document }} s3://${{ steps.get-bucket.outputs.bucket_name }} 
+          aws s3 cp website/${{ github.event.inputs.index_document }} s3://${{ env.BUCKET_NAME }} 
+          aws s3 cp website/${{ github.event.inputs.error_document }} s3://${{ env.BUCKET_NAME }} 
 
       - name: Show S3 bucket website URL
         run: |
