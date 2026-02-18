@@ -64,8 +64,8 @@ jobs:
 
       - name: Upload files to S3 bucket
         run: |
-          aws s3 cp ../${{ github.event.inputs.index_document }} s3://${{ steps.get-bucket.outputs.bucket_name }} 
-          aws s3 cp ../${{ github.event.inputs.error_document }} s3://${{ steps.get-bucket.outputs.bucket_name }} 
+          aws s3 cp website/${{ github.event.inputs.index_document }} s3://${{ steps.get-bucket.outputs.bucket_name }} 
+          aws s3 cp website/${{ github.event.inputs.error_document }} s3://${{ steps.get-bucket.outputs.bucket_name }} 
 
       - name: Show S3 bucket website URL
         run: |
