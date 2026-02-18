@@ -25,6 +25,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
           aws-region: us-east-1
+      - name: Clean up old change sets
+        run: |
+          # Listar y eliminar change sets del stack
+          CHANGESETS=$(aws cloudformation list-change-sets \
+            --stack-name uda-artifact \
+            --query 'Summaries[*].ChangeSetName' \
+            --output text 2>/dev/null || echo "")
+          
+          for cs in $CHANGESETS; do
+            aws cloudformation delete-change-set \
+              --stack-name uda-artifact \
+              --change-set-name $cs || true
+          done
+        continue-on-error: true
       - name: Create CloudFormation Stack
         uses: aws-actions/aws-cloudformation-github-deploy@v2.0.0
         with:
