@@ -39,14 +39,14 @@ jobs:
           template: uda_artifact.yml
           fail-on-empty-changeset: "1"
       
-      - name: Get bucket name from CloudFormation
-        id: get-bucket
-        run: |
-          BUCKET=$(aws cloudformation describe-stacks \
-            --stack-name uda-artifact \
-            --query 'Stacks[0].Outputs[?OutputKey==`ArtifactBucketName`].OutputValue' \
-            --output text)
-          echo "bucket_name=$BUCKET" >> $GITHUB_OUTPUT
+      # - name: Get bucket name from CloudFormation
+      #   id: get-bucket
+      #   run: |
+      #     BUCKET=$(aws cloudformation describe-stacks \
+      #       --stack-name uda-artifact \
+      #       --query 'Stacks[0].Outputs[?OutputKey==`ArtifactBucketName`].OutputValue' \
+      #       --output text)
+      #     echo "bucket_name=$BUCKET" >> $GITHUB_OUTPUT
 
       - name: Upload files to S3 bucket
         run: |
